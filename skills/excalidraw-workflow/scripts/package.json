@@ -1,0 +1,11 @@
+{
+  "name": "excalidraw-to-png",
+  "version": "1.0.0",
+  "description": "Excalidraw → PNG batch export tool using native Excalidraw renderer",
+  "scripts": {
+    "export": "node export_excalidraw_png.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.0.0"
+  }
+}
