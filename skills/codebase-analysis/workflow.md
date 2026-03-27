@@ -41,16 +41,19 @@ Before ending any conversation:
 ```
 
 3. **Verify claimed progress** -- spot-check 3 files from the work just completed
+4. **Verify diagrams** -- validate per the Diagram Strategy in [conventions.md](conventions.md): Path A — run the PNG export command and confirm every `.excalidraw` has a `.png` sibling; Path B — confirm ASCII diagrams are fully embedded. Report any issues in the handoff notes.
 
 ## Resume Protocol
 
 When starting a new conversation to continue the work:
 
-1. **Read the master index** -- understand overall progress state
-2. **Read the latest handoff notes** -- know exactly what to do next
-3. **Spot-check 3 files** from the previous session's work to verify quality
-4. **Re-read 1-2 GOOD reference files** to calibrate annotation quality
-5. **Continue from where the handoff notes indicate**
+1. **Re-read SKILL.md** -- especially the Four-Level Depth Model, Coverage-Chain Completeness Rule, and Phase 3 checkpoints
+2. **Read the master index** -- understand overall progress state
+3. **Read the latest handoff notes** -- know exactly what to do next
+4. **Read the most recent completed analysis doc** -- use as quality calibration reference
+5. **Spot-check 3 files** from the previous session's work against Phase 3 CHECKPOINT C
+6. **Re-read 1-2 GOOD reference files** to calibrate quality
+7. **Continue from where the handoff notes indicate**
 
 ## Quality Regression Handling
 
