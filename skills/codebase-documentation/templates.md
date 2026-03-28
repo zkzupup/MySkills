@@ -1,124 +1,20 @@
 # Analysis Document Templates
 
-## 0. Document Output Directory Scaffold
-
-Use this as the starting scaffold when initializing a new project's documentation directory. Adapt the numbered folders and diagram subfolders to the project's actual subsystems.
-
-```
-Document/
-├── MasterIndex.md                       # Master index (create first, update continuously)
-│
-├── 01-<TopicA>/                         # First topic folder (typically high-level overview)
-│   ├── <Module>_Overview.md
-│   └── <Module>_Analysis.md
-│
-├── 02-<TopicB>/                         # One folder per major subsystem or domain
-│   ├── <Module>_Framework_Analysis.md
-│   └── <Module>_E2EFlow.md             # End-to-end flow analysis
-│
-├── ...                                  # Continue numbering as needed
-│
-├── NN-<TopicN>/                         # Last numbered topic folder
-│   └── <Module>_Analysis.md
-│
-├── diagrams/                            # ALL Excalidraw diagrams, grouped by domain
-│   ├── <DomainA>/                       # One subfolder per topic domain
-│   │   ├── <System>_Architecture.excalidraw
-│   │   ├── <Process>_Pipeline.excalidraw
-│   │   └── <Object>_Lifecycle.excalidraw
-│   ├── <DomainB>/
-│   └── Misc/                            # Cross-cutting or uncategorized diagrams
-│
-└── Presentation/                        # (Optional) Presentation materials
-    ├── <PresentationDoc>.md
-    └── diagrams/
-        ├── D01-<Description>.excalidraw
-        └── 01-<Description>.excalidraw
-```
-
-### Scaffold Initialization Checklist
-
-When starting a new project analysis, verify:
-
-- [ ] `Document/` root created with master index file (e.g., `MasterIndex.md`)
-- [ ] Topic folders created with `NN-` prefix reflecting reading order
-- [ ] `diagrams/` created with one subfolder per topic domain
-- [ ] Subfolder-to-topic alignment table documented in master index
-- [ ] Convention docs (annotation standards, etc.) placed at root level
-- [ ] `.excalidraw` files ONLY reside under `diagrams/` (or `Presentation/diagrams/`)
-- [ ] `.md` analysis files ONLY reside under `NN-` topic folders
-- [ ] No orphan files -- every file is registered in master index
-- [ ] PNG export pipeline verified: `node <excalidraw-workflow-skill-root>/scripts/export_excalidraw_png.js` runs without error
-
 ---
 
-## 1. Master Index Document Template
+## 1. MasterIndex Extension
 
-The master index is the single-source-of-truth navigation hub for the entire project analysis.
+This skill extends the MasterIndex (created by `codebase-structure`) by populating these sections:
 
-```markdown
-# [Project Name] Analysis Master Index
+| MasterIndex Section | What This Skill Adds |
+|---------------------|---------------------|
+| §50 Documentation Execution Plan | Analysis order for structural and feature modules |
+| §60 Analysis Documents | Links to completed analysis documents |
+| §70 Diagrams | Links to per-module diagrams |
+| §80 Annotated Source Index | File-level annotation progress (if enabled) |
+| Handoff Notes | Session progress and next priorities |
 
-> Global navigation index for all analysis documents, diagrams, and source annotations.
->
-> Legend: [done] Completed | [partial] Partial | [todo] Todo | [skip] Excluded
-
----
-
-## 1. Analysis Documents
-
-### 1.1 [Subsystem A] Documents
-
-| # | Document | Path | Status |
-|---|----------|------|--------|
-| 1 | [Title] | [link](path/to/doc.md) | [done] |
-
-### 1.2 [Subsystem B] Documents
-...
-
----
-
-## 2. Diagrams
-
-### 2.1 Architecture Diagrams
-
-| # | Diagram | Path | Status |
-|---|---------|------|--------|
-| 1 | [Title] | [link](path/to/diagram.png) | [done] |
-
----
-
-## 3. Annotated Source Index
-
-### 3.1 Completed Annotations
-
-| # | Module | Directory | File Count | Coverage | Language |
-|---|--------|-----------|------------|----------|----------|
-| 1 | [Name] | `path/` | N | 100% | C++ |
-
-**Total**: X files annotated
-
----
-
-## 4. Excluded Modules
-
-| Module | Directory | File Count | Reason |
-|--------|-----------|------------|--------|
-| [Name] | `path/` | N | Third-party library / Generated data / Backup |
-
----
-
-## 5. Project Directory Tree
-
-(annotated tree structure here)
-
----
-
-## 6. Reference Standards
-
-- Analysis depth reference: [link]
-- Annotation template: [link]
-```
+The MasterIndex template (§00–§40, §90–§91, scaffold) is maintained in the `codebase-structure` skill.
 
 ---
 
@@ -165,7 +61,7 @@ The master index is the single-source-of-truth navigation hub for the entire pro
 
 **Diagram walkthrough:** <2-5 sentences explaining what this diagram shows. Identify the major components visible in the diagram, describe how they connect, highlight the primary data flow direction, and call out any notable architectural decisions visible in the layout. Do NOT just restate the module overview — explain what a reader is LOOKING AT in the diagram.>
 
-### 2.2 [Additional Diagram Type] (if applicable per Phase 1 diagram plan)
+### 2.2 [Additional Diagram Type] (if applicable per MasterIndex diagram plan)
 
 > Repeat this subsection for each additional diagram (data flow, class diagram, state machine, lifecycle, sequence, ER, memory layout). Each follows the same format: image embed + walkthrough paragraph.
 
@@ -176,7 +72,7 @@ The master index is the single-source-of-truth navigation hub for the entire pro
 ## 3. Core Logic Breakdown (L2)
 
 > Each subsection traces a complete feature from input to output. Include function names at every step.
-> The coverage chain requires: every subsystem from Phase 1 gets at least one subsection here.
+> The coverage chain requires: every subsystem from MasterIndex gets at least one subsection here.
 
 ### 3.1 [Feature / Subsystem A]
 
@@ -280,10 +176,10 @@ The master index is the single-source-of-truth navigation hub for the entire pro
 ## 8. Design Intent Analysis (L2)
 
 ### Implementation Facts
-- <Objectively observed patterns, algorithms, data structures -- cite specific code>
+- <Objectively observed patterns, algorithms, data structures — cite specific code>
 
 ### Inferred Design Intent
-- <Why this approach was likely chosen -- cite evidence from code structure, comments, naming>
+- <Why this approach was likely chosen — cite evidence from code structure, comments, naming>
 
 ### Unclear Intent Areas
 - `[intent-unclear]` `<code region>`: <What question remains about the design rationale>
@@ -316,8 +212,8 @@ Use this template when a topic folder contains >=2 sub-module analysis documents
 
 | Document | Content |
 |----------|---------|
-| [SubModule_A_Analysis.md](./SubModule_A_Analysis.md) | <one-line summary> |
-| [SubModule_B_Analysis.md](./SubModule_B_Analysis.md) | <one-line summary> |
+| [NNN_SubModule_A_Analysis.md](./NNN_SubModule_A_Analysis.md) | <one-line summary> |
+| [NNN_SubModule_B_Analysis.md](./NNN_SubModule_B_Analysis.md) | <one-line summary> |
 
 ## Cross-Module Integration
 
@@ -363,40 +259,4 @@ Use this template when a topic folder contains >=2 sub-module analysis documents
 - <links to upstream/downstream analysis docs>
 ```
 
----
 
-## 3. Priority Matrix Template
-
-```markdown
-## Module Priority Matrix
-
-| Priority | Module | Directory | Files | Reason |
-|----------|--------|-----------|-------|--------|
-| P0 | [Core module] | `path/` | N | Core business logic |
-| P1 | [Support module] | `path/` | N | Supporting system |
-| P2 | [Infra module] | `path/` | N | Infrastructure |
-| P3 | [UI module] | `path/` | N | Templated UI |
-| SKIP | [Third-party] | `path/` | N | External library |
-```
-
----
-
-## 4. Progress Tracking Table
-
-Embed in the master index for cross-conversation continuity:
-
-```markdown
-## Progress Tracking
-
-| Phase | Module | Status | Files Done | Files Total | Last Updated | Notes |
-|-------|--------|--------|------------|-------------|--------------|-------|
-| 3 | Module A | [done] | 120 | 120 | 2025-01-15 | Reference quality |
-| 4 | Module B | [partial] | 80 | 150 | 2025-01-16 | Batch 2 in progress |
-| 4 | Module C | [todo] | 0 | 90 | - | Next priority |
-```
-
----
-
-## 5. Structure Compliance Checklist
-
-See [conventions.md](conventions.md) — "Structure Compliance Checklist" section for the full checklist to run at the end of each conversation.
