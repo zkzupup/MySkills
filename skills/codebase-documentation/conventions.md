@@ -97,11 +97,10 @@ Document/
 
 **General principles:**
 
-- Domain-specific English terms (class names, technical abbreviations) keep their original form
-- Use the project's primary language for descriptive text; preserve technical terms as-is
-- No spaces in file names; use underscores for English compound words
+- Technical identifiers (class names, technical abbreviations, file paths) keep their original English form
+- Descriptive text in headings, prose, and file name descriptors defaults to **Chinese**; switch to English only when the user explicitly requests it
+- No spaces in file names; use underscores for compound words
 - File extension determines type: `.md` for docs, `.excalidraw` for diagrams
-- Choose a consistent naming language (Chinese or English) for the project and stick with it
 
 ### Diagram Subfolder Alignment
 

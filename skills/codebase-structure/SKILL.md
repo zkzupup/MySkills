@@ -20,7 +20,7 @@ description: >-
 > 3. **File references**: Always use `path/file.ext` format. When referencing classes, use `ClassName` in `path/file.ext`.
 > 4. **Self-check**: After completing the inventory, verify every structural module appears in BOTH the Priority Matrix AND the Directory Tree, and every feature module's constituent locations have `{feature:Name}` tags in the Directory Tree.
 > 5. **Readability**: No paragraph >4 sentences. Lead sections with a **bolded summary sentence**. Use tables for ≥4 items.
-> 6. **Language match**: Headings and prose match user's language. Technical identifiers (class names, file paths) always English.
+> 6. **Language**: Headings and prose default to **Chinese**; switch to English only when the user explicitly requests it. Technical identifiers (class names, file paths) always English.
 
 ## Trigger Protocol
 
@@ -31,7 +31,11 @@ When this skill is activated, BEFORE performing any analysis, present the user w
    - **Standard Analysis (Tier 2)** *(default)*: Full module inventory with dependency analysis and architecture diagrams. For routine analysis work.
    - **Deep Analysis (Tier 3)**: Maximum depth sub-module detection, exhaustive dependency graph, full pattern recognition. For critical projects or legacy system takeover.
 
-Record the selected tier in the MasterIndex header for downstream consumption by `codebase-documentation`.
+2. **Documentation Language** (single-select):
+   - **Chinese** *(default)*: Headings, prose, and descriptive text in Chinese
+   - **English**: Headings, prose, and descriptive text in English
+
+Technical identifiers (class names, file paths) always stay English regardless of this setting. Record the selected tier and language in the MasterIndex header for downstream consumption by `codebase-documentation`.
 
 ## Role
 
@@ -160,7 +164,7 @@ Apply these detection signals in priority order:
 
 | Field | Content |
 |-------|---------|
-| Name | Business feature name (in project's domain language) |
+| Name | Business feature name (default Chinese; English only if user explicitly requests) |
 | Domain | Brief description of what the feature does for end users |
 | Constituent locations | List of `structural_module/subdirectory` or `structural_module/file_pattern` for each structural module involved, with approximate file counts |
 | Entry points | Primary classes/functions that initiate the feature |

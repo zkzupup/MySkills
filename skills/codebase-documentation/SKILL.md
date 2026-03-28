@@ -20,15 +20,21 @@ description: >-
 > 5. **File references**: Always use `ClassName::methodName()` with `path/file.ext:line` format.
 > 6. **Self-check**: After completing each module analysis, re-read this Hard Rules block and the Completeness Gate before proceeding.
 > 7. **Readability**: No paragraph >4 sentences. No inline lists >3 items. Lead sections with a **bolded summary sentence**. See Readability Formatting Rules.
-> 8. **Language match**: Headings and prose match user's language. `ClassName::method()` and file paths always English.
+> 8. **Language**: Headings and prose default to **Chinese**; switch to English only when the user explicitly requests it. `ClassName::method()` and file paths always English.
 
 ## Trigger Protocol
 
-When this skill is activated, BEFORE performing any analysis, present the user with the following option using the AskQuestion tool:
+When this skill is activated, BEFORE performing any analysis, present the user with the following options using the AskQuestion tool:
 
 1. **File-Level Source Annotations** (single-select):
    - **Yes**: After completing module analysis documents, automatically invoke `code-annotation` skill to annotate source files
    - **No** *(default)*: Produce analysis documents only, skip source file annotation
+
+2. **Documentation Language** (single-select):
+   - **Chinese** *(default)*: Headings, prose, and descriptive text in Chinese
+   - **English**: Headings, prose, and descriptive text in English
+
+Technical identifiers (`ClassName::method()`, file paths) always stay English regardless of this setting.
 
 ## Startup Protocol
 
@@ -197,7 +203,7 @@ Additional Tier 3 rules:
 | One-step-one-concern | A numbered step contains semicolons or "then / and also" chains | Split into sub-steps (1a, 1b) or separate steps |
 | Term introduction | First use of domain term or abbreviation | **Term** — one-sentence definition. Never bury in prose |
 | Visual spacing | Two dense blocks adjacent | Insert ≥1 sentence of connecting prose |
-| Language match | User communicates in language X | Headings/prose use language X. Technical identifiers stay English |
+| Language | Always | Headings/prose default to Chinese; switch to English only when explicitly requested. Technical identifiers (`ClassName::method()`, file paths) stay English |
 
 ## Collaborative Protocol
 
