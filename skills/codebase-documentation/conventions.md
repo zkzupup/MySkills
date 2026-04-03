@@ -43,39 +43,24 @@ Document/
 
 **Topic folder numbering** uses a decade-aligned scheme: each folder number is a multiple of 10 (e.g., `000`, `010`, `020`, ..., `090`, `100`, `110`). Reading order goes from general overview first, then subsystems by importance, finally utilities/tools. Three-digit zero-padding ensures correct lexicographic sorting even beyond `099`.
 
-### Decade-Aligned Numbering & Variable Spacing
+### Decade-Aligned Numbering
 
-**Core rule**: folder numbers are multiples of 10; file numbers fall within the folder's allocated range, making every file number globally unique across the entire documentation set.
-
-**Variable spacing** allows allocating wider ranges to folders that need more files:
-
-| Folder Size | Spacing | File Slots | When to Use |
-|-------------|---------|------------|-------------|
-| Small (≤5 files expected) | ×10 | `N01–N09` (9 slots) | Utility modules, simple modules |
-| Medium (6–15 files expected) | ×20 | `N01–N+19` (19 slots) | Large modules with sub-module splits |
-| Large (>15 files expected) | ×30 | `N01–N+29` (29 slots) | Very large modules (e.g., 1000+ source files) |
+**Core rule**: folder numbers are multiples of 10; each folder has file slots `N01–N09` (9 slots), making every file number globally unique across the entire documentation set.
 
 **Example allocation**:
 
 ```
-000-ProjectOverview/        → 001–009  (×10)
-010-Framework/              → 011–029  (×20, large module with sub-splits)
-030-BattleSystem/           → 031–049  (×20)
-050-GameLogic/              → 051–079  (×30, very large module)
-080-GameRuntime/            → 081–109  (×30)
-110-Supporting/             → 111–119  (×10)
-120-Extensions/             → 121–129  (×10)
-130-FeatureWorldCity/       → 131–149  (×20)
-150-FeatureBattle/          → 151–169  (×20)
-170-FeatureOther/           → 171–189  (×20)
+000-ProjectOverview/        → 001–009
+010-Framework/              → 011–019
+020-BattleSystem/           → 021–029
+030-GameLogic/              → 031–039
+040-GameRuntime/            → 041–049
+050-Supporting/             → 051–059
+060-FeatureWorldCity/       → 061–069
+070-FeatureBattle/          → 071–079
 ```
 
-**Allocation rules**:
-
-1. Spacing is determined during the MasterIndex Documentation Execution Plan phase, based on estimated file counts from the module inventory
-2. Each folder's allocated range MUST NOT overlap with the next folder's start number
-3. The Documentation Execution Plan table MUST include a "Range" column showing each folder's allocated file number range
-4. If a folder exhausts its range during analysis, treat it as a signal to split the folder rather than breaking into the next range
+**Overflow rule**: If a folder needs >9 files during analysis, split the folder into sub-topics (e.g., `030-GameLogic/` → `030-GameLogic-Core/` + `040-GameLogic-Systems/`) and renumber subsequent folders. This keeps each folder focused and navigable.
 
 ### File Naming Rules
 
@@ -144,58 +129,100 @@ Select the diagram workflow based on whether the `excalidraw-workflow` skill is 
 3. **Index marking**: Mark the module's diagram status as `[mermaid-only]` in the Master Index
 4. **Upgrade path**: When `excalidraw-workflow` becomes available later, Mermaid diagrams can be batch-converted to Excalidraw format
 
+### Diagram Type Suitability
+
+When choosing between Excalidraw and Mermaid (Path B), prefer the format best suited to the diagram type:
+
+| Diagram Type | Mermaid Suitability | Excalidraw Suitability | Recommendation |
+|---|---|---|---|
+| Sequence diagram | Excellent — native syntax, auto-layout | Good | Mermaid preferred |
+| Simple flowchart | Good — native syntax | Good | Either works |
+| State machine | Good — native `stateDiagram` | Good | Either works |
+| Simple class diagram | Good — native `classDiagram` | Good | Either works |
+| Architecture overview (multi-layer) | Poor — lacks flexible spatial layout | Excellent — free-form positioning | Excalidraw preferred |
+| Memory layout / SoA/AoS | Poor — no native support | Excellent — custom shapes | Excalidraw only |
+| Complex multi-module data flow | Poor — becomes unreadable | Excellent — spatial grouping | Excalidraw preferred |
+| ER diagram | Good — native `erDiagram` | Good | Either works |
+
+When using Path B (mermaid fallback), prioritize the diagram types marked "Excellent" or "Good" for mermaid. For types marked "Poor", write a detailed textual description instead of forcing an unreadable mermaid diagram.
+
+### Diagram Type Mapping
+
+| Content Type | Diagram Type | When to Use |
+|---|---|---|
+| Module architecture, layer hierarchy | Architecture diagram | Every module's §2.1 |
+| Request-response, cross-module call chains | Sequence / Data flow | L2 data flow traces |
+| Object lifecycle (creation → use → disposal) | Lifecycle diagram | Managed objects, pooled resources |
+| State transitions | State machine | Entities with discrete states |
+| Class inheritance / composition | Class diagram | Complex type hierarchies |
+| Multi-step processing pipelines | Pipeline diagram | Render pipelines, data processing chains |
+| Data model relationships | ER diagram | Persistent data models, config schemas |
+
+### Diagram Quality Standards
+
+- **Label precision**: Every node/box must be labeled with `ClassName` or `ClassName::method()` — no generic labels like "Module" or "System"
+- **Boundary markers**: Cross-module diagrams must visually separate modules (colored regions, dashed boundaries, or swim lanes)
+- **Data annotations**: Arrows must indicate what data flows (type name or brief description), not just direction
+- **Consistent style**: All diagrams within the same documentation set should follow the same visual conventions
+
 ## Structure Compliance Checklist
 
-Run this checklist at the end of each conversation to verify the Document directory remains well-structured.
+### Critical Checks (Run After Every Module)
 
-### Directory Rules
+These 8 checks catch the most common and impactful errors. Run after completing each module analysis.
 
+- [ ] No orphan files — every new doc/diagram registered in master index
+- [ ] No broken links in master index
+- [ ] File numbers globally unique and within parent folder's `N01–N09` range
+- [ ] All `![...]()` image embeds reference `.png`, not `.excalidraw`
+- [ ] Every `.excalidraw` has a corresponding `.png` sibling
+- [ ] Status tags in directory tree updated for completed modules (`[todo]` → `[done]`)
+- [ ] Analysis docs reference diagrams using relative paths (`../diagrams/...`)
+- [ ] No banned vague language in new content
+
+### Feature Module Critical Checks (Run After Every Feature Analysis)
+
+- [ ] §0 列出了 feature 目录下所有二级子目录/子管理器
+- [ ] §3 穷举了所有交互路径（对照 §0 子系统、MsgHandler、EventArgs 文件验证无遗漏）
+- [ ] §5 覆盖了 EventArgs 定义文件中所有事件类型
+- [ ] §6 覆盖了 MsgHandler 中所有 Handler（如适用）
+- [ ] §4 按交互类型分组（直接调用/接口桥接/事件驱动/网络消息）
+- [ ] Coverage chain: §3/§4 命名的类 → §8 有条目 → §9 有文件
+
+### Full Audit (Run at Session End or On Request)
+
+Run this complete checklist at the end of each conversation or when the user explicitly requests a compliance audit.
+
+**Directory Rules**:
 - [ ] All topic folders follow `NNN-<TopicName>` naming (three-digit, zero-padded, decade-aligned)
 - [ ] Topic folder numbers are multiples of 10, ordered by reading priority
-- [ ] Each folder's allocated file range does not overlap with the next folder's start
 - [ ] `diagrams/Global/` exists with the global architecture diagram
 - [ ] `diagrams/` subfolders exist for every topic domain
 - [ ] No `.excalidraw` files outside `diagrams/` or `Presentation/diagrams/`
 - [ ] No `.md` analysis files outside their `NNN-` topic folder
 - [ ] Root level contains only index/convention files, not analysis docs
 
-### File Naming Rules
-
+**File Naming Rules**:
 - [ ] Analysis docs use `NNN_` prefix + descriptive name + analysis suffix + `.md`
-- [ ] File numbers are globally unique and fall within their parent folder's allocated range
 - [ ] Diagram files use descriptive name + type suffix + `.excalidraw`
 - [ ] No spaces in file names
 - [ ] Domain-specific technical terms preserved in original form
 
-### Cross-Reference Integrity
-
+**Cross-Reference Integrity**:
 - [ ] Master index lists ALL analysis docs with working relative links
 - [ ] Master index lists ALL diagrams with working relative links
-- [ ] Analysis docs reference diagrams using relative paths (`../diagrams/...`)
-- [ ] No orphan files (every file registered in master index)
-- [ ] No broken links in master index
-- [ ] Every `.excalidraw` file under `diagrams/` has a corresponding `.png` sibling
-- [ ] All `![...]()` image embeds in analysis docs reference `.png` files, not `.excalidraw`
 
-### Decade-Aligned Numbering Consistency
+**Numbering Consistency**:
+- [ ] No folder exceeds 9 files (split if needed)
 
-- [ ] Documentation Execution Plan includes a "Range" column for each folder's allocated file number range
-- [ ] Every file number falls within its parent folder's allocated range
-- [ ] No two folders have overlapping allocated ranges
-- [ ] File numbers are globally unique across the entire `Document/` tree
-
-### Directory Tree Consistency
-
+**Directory Tree Consistency**:
 - [ ] Every structural module in Priority Matrix is locatable in the directory tree
 - [ ] Role tags (`[core]`/`[supporting]`/`[infra]`) align with Priority Matrix (P0/P1/P2)
-- [ ] Status tags in tree match actual completion state (docs exist for `[done]` modules)
 - [ ] `[skip]` directories correspond to SKIP or Excluded Modules entries
 - [ ] `[partial]` entries specify which subset is complete
-- [ ] When a module analysis doc is created, tree status updated from `[todo]` to `[done]`
 - [ ] `[bottleneck]` modules in anomaly table are P0 or P1
 
-### Feature Module Consistency
-
+**Feature Module Consistency**:
 - [ ] Every constituent location in Feature Module Matrix has a `{feature:Name}` tag in the tree
 - [ ] Every `{feature:Name}` tag in the tree has a corresponding Feature Module Matrix entry
 - [ ] P0 feature constituent locations reside in P1-or-higher structural modules

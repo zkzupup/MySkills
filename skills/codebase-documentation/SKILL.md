@@ -15,12 +15,14 @@ description: >-
 >
 > 1. **Diagrams**: ONLY Excalidraw (via `excalidraw-workflow`) or mermaid fallback. NEVER PlantUML, Draw.io.
 > 2. **No vague language**: Never write "handles various", "uses several patterns", "data flows through the system", or "see code for details". Name every class, function, and data path explicitly.
-> 3. **Four-level depth**: Every analysis document MUST contain L0 (concepts, when applicable), L1 (architecture), L2 (mechanism with full data flow traces), AND L3 (class/method reference).
-> 4. **Walkthrough required**: Every diagram MUST have a walkthrough paragraph (≥2 sentences) directly below it.
+> 3. **Four-level depth**: Every analysis document MUST contain L0 (concepts, when applicable), L1 (architecture), L2 (mechanism with full data flow traces), AND L3 (compact responsibility index + exhaustive key files table).
+> 4. **Walkthrough required**: Every diagram MUST have a walkthrough paragraph (≥2 sentences) directly below it. The walkthrough MUST: (a) name at least 3 specific components visible in the diagram, (b) describe the primary data/control flow direction, and (c) call out at least one non-obvious architectural decision visible in the layout. Generic walkthroughs that could apply to any diagram are violations.
 > 5. **File references**: Always use `ClassName::methodName()` with `path/file.ext:line` format.
-> 6. **Self-check**: After completing each module analysis, re-read this Hard Rules block and the Completeness Gate before proceeding.
+> 6. **Self-check**: After completing each analysis pass, re-read this Hard Rules block and the active execution gate in `workflow.md` before proceeding.
 > 7. **Readability**: No paragraph >4 sentences. No inline lists >3 items. Lead sections with a **bolded summary sentence**. See Readability Formatting Rules.
 > 8. **Language**: Headings and prose default to **Chinese**; switch to English only when the user explicitly requests it. `ClassName::method()` and file paths always English.
+> 9. **Depth-first multi-document execution**: When a module spans multiple documents, you MUST establish shared module context first and then finalize one sibling document at a time. NEVER draft multiple sibling documents as final prose in parallel.
+> 10. **Same-module subagent limit**: One module has one final owner. Same-module subagents are evidence-only by default and must follow the orchestration rules in `reference.md`.
 
 ## Trigger Protocol
 
@@ -31,23 +33,21 @@ When this skill is activated, BEFORE performing any analysis, present the user w
    - **No** *(default)*: Produce analysis documents only, skip source file annotation
 
 2. **Documentation Language** (single-select):
-   - **Chinese** *(default)*: Headings, prose, and descriptive text in Chinese
-   - **English**: Headings, prose, and descriptive text in English
+   - If MasterIndex §00 already records a language choice from `codebase-structure`, use that as the default and show it to the user: "MasterIndex specifies [language]. Keep this or override?"
+   - If no MasterIndex language is recorded, default to **Chinese**
+   - Options: **Chinese** / **English** — headings, prose, and descriptive text
+   - Technical identifiers (`ClassName::method()`, file paths) always stay English regardless of this setting.
 
-Technical identifiers (`ClassName::method()`, file paths) always stay English regardless of this setting.
+## Activation
 
-## Startup Protocol
+After Trigger Protocol completes:
 
-This skill consumes the MasterIndex produced by `codebase-structure`. On activation:
-
-1. **Read `Document/MasterIndex.md`** — extract the structural module list (§10), feature module matrix (§20), dependency summary, and selected detail tier
-2. **Read the latest handoff notes** (if resuming a multi-conversation session)
-3. **Plan documentation order**: Structural modules first (following the Documentation Execution Plan), then feature modules. Feature module analysis builds on completed structural module docs since it traces cross-module interactions.
-4. **Determine documentation depth** based on the tier recorded in MasterIndex:
-   - **Tier 1**: L0 + L1 only for P0 structural modules; no standalone documents for P1/P2/P3; feature modules skipped
-   - **Tier 2**: Full L0–L3 for P0; L1–L3 for P1; L1–L2 + lightweight L3 for P2. P0 feature modules get a cross-module analysis doc (default)
-   - **Tier 3**: Full L0–L3 for ALL structural modules (P0–P2); ALL feature modules get cross-module analysis; maximum diagram requirements; full coverage chain for every module
-5. **If no MasterIndex exists**: inform the user to run `codebase-structure` first, or perform a lightweight in-place module inventory before proceeding
+1. Follow `workflow.md` for session startup or resume.
+2. Load companion files lazily:
+  - `templates.md` for Module Context Packet, Evidence Packet, and final document structures
+  - `workflow.md` for startup, resume, execution gates, handoff, MasterIndex updates, and annotation flow
+  - `reference.md` for tier depth, coverage closure cues, readability, parallelism, and risk decisions
+3. If context is tight, preserve source facts, trace inventory, L3 closure, and Key Files coverage before prose polish.
 
 ## Role
 
@@ -60,7 +60,7 @@ Act as a **Senior System Architect & Technical Documentation Engineer**. Produce
 | **L0 — Concepts** | "What must the reader understand first?" | Domain pattern explanation, key terminology with definitions, architectural alternatives considered, mental model |
 | **L1 — Architecture** | "What is this module and how does it fit?" | Purpose, design patterns, layer position, dependencies, architecture diagrams |
 | **L2 — Mechanism** | "How does each feature work?" | Complete data flows with function names, algorithms step-by-step, state machines, performance characteristics, usage examples |
-| **L3 — Reference** | "What exactly does this class/function do?" | Key class responsibilities, public API signatures, parameter meanings, constants, threading constraints |
+| **L3 — Reference** | "What class is responsible for this, and where is it?" | Compact responsibility index: class name + file path + one-line responsibility. NOT full member tables — readers use IDE for signatures. |
 
 **L0 trigger**: Mandatory when the module implements a recognized architectural pattern (ECS, MVC, actor, pipeline, pub-sub, etc.) or introduces >=5 domain-specific terms not defined elsewhere. Optional for utility modules.
 
@@ -68,184 +68,90 @@ Act as a **Senior System Architect & Technical Documentation Engineer**. Produce
 
 ## Coverage-Chain Completeness Rule
 
-Document depth is determined by a coverage chain, not fixed counts:
+Document depth is determined by closure, not quotas:
 
 ```
 MasterIndex subsystem inventory
-  → L2: each subsystem ≥1 complete data flow trace
-    → every class/function named in any L2 data flow
-      → L3: must have a Key Class Reference entry
-        → every file containing an L3-referenced class
-          → must appear in Key Files table
+  → L2 traces for every subsystem
+    → owner document for every shared mechanism
+      → L3 entry for every named class/function
+        → Key Files coverage for every referenced source file
 ```
 
-1. **MasterIndex anchors L2**: Every subsystem identified in MasterIndex requires ≥1 data flow trace in L2.
-2. **L2 anchors L3**: Every class explicitly named in any L2 data flow MUST have an L3 entry.
-3. **L3 anchors Key Files**: Every file containing an L3-referenced class MUST appear in Key Files.
-4. **Minimum floor**: At least 3 L3 entries and 3 Key Files entries, even if the chain produces fewer.
-5. **Self-check**: After writing L3, scan all L2 traces — any unnamed class = incomplete. After writing Key Files, scan all L3 entries — any missing file = incomplete.
+1. Every subsystem identified in MasterIndex must produce at least one L2 trace.
+2. Every class/function named in L2 must map to one owner document and an L3 entry.
+3. Every file containing an L3-referenced class must appear in Key Files; diff against the directory scan before completion.
+
+For closure patterns, orchestration rules, and attention heuristics, see `reference.md`.
+
+## Module Preconditions
+
+- Build a Module Context Packet (`templates.md` §1.5) before drafting any module that spans >=2 documents or has >=2 independent subsystems. No packet, no prose.
+- Use the Coverage Ledger inside the Context Packet to close `subsystem -> trace -> L3 -> Key Files` across sibling documents.
+- Same-module evidence collection must use `templates.md` §1.6 and stay evidence-only.
+- Default same-module fan-out is 2. High-risk modules with partial classes, central orchestrators, shared hotspot files, or shared lifecycle/state machines keep final drafting serial.
 
 ## Per-Module Deep Analysis
 
-For each module (ordered by priority from MasterIndex), produce a document following [templates.md](templates.md) §2.
+For each module (ordered by priority from MasterIndex), finalize one target document per pass using `templates.md` §2.
 
-**Execution flow with inline checkpoints:**
+### Step 0 — Context & Ownership
+
+- Build or refresh the Module Context Packet and Coverage Ledger
+- Pick exactly one target document for the current pass
+- Assign every shared anchor to one owner document before prose
 
 ### Step A — L0 + L1: Concepts & Architecture
 
-- L0 Domain Concepts (if trigger met): pattern overview, terminology table, alternatives, mental model
-- L1 Module Overview: purpose (≥3 sentences), patterns, tech stack, entry points with file paths
-- Diagrams: P0 modules require ≥2 (architecture + one additional); P1/P2 require ≥1
+- Add L0 concepts when the L0 trigger fires
+- Write L1 overview, patterns, entry points, dependencies, and required diagrams
 
 ### Step B — L2: Mechanism & Usage
 
-- Core Logic Breakdown: one subsection per subsystem from MasterIndex, each with complete data flow trace
-- Usage Patterns (P0 only): ≥1 end-to-end example with real API names; comparison table if multiple modes exist
-- Design Intent: implementation facts + inferred intent (cite evidence) + `[intent-unclear]` areas
+- Trace every subsystem from MasterIndex with function-level data flow
+- Include performance notes, design intent, and P0 usage examples where required
 
-> **CHECKPOINT B**: Before proceeding to L3, verify:
-> - [ ] Every subsystem from MasterIndex has a data flow trace
-> - [ ] No banned syntax (vague language)
-> - [ ] Performance notes present for each feature
-> - [ ] P0 modules have a usage example
+### Step C — L3: Reference Index
 
-### Step C — L3: Reference
+- Add an L3 responsibility entry for every class named in L2
+- Close the Key Files table against the directory scan
+- Record Follow-Up Items or explicit "none identified"
 
-- Key Class Reference: one entry per class named in any L2 data flow (floor: 3)
-- Key Files Table: one entry per file containing an L3 class (floor: 3)
-- Follow-Up Items: ≥1 item or explicit "none identified" with justification
+### Execution Gates
 
-> **CHECKPOINT C**: Coverage chain verified:
-> - [ ] Every class named in L2 data flows has an L3 entry
-> - [ ] Every file containing an L3 class is in Key Files
-> - [ ] Diagram count meets minimum (P0 ≥2, P1/P2 ≥1)
-> - [ ] Every diagram has a walkthrough paragraph
+- `CHECKPOINT B`: before Step C, validate L2 completeness
+- `CHECKPOINT C`: before document finalization, validate L3, Key Files, and diagram closure
+- `CHECKPOINT M`: before module completion, validate module-wide ownership, ledger closure, sibling-doc consistency, and hotspot spot-checks
 
-### Module Splitting Criteria
+See `workflow.md` `Execution Gates` for full checklists.
 
-| Condition | Action |
-|-----------|--------|
-| ≥3 independent subsystems (≥2 in Tier 3) | Create `Overview.md` + per-subsystem `Analysis.md` |
-| ≥200 source files | Split by layer or functional area |
-| Single doc would exceed ~250 lines | Split into focused docs |
-| Coverage chain produces >15 L3 entries | Strong signal to split |
+### Split And Overview Rules
 
-All split documents stay in the SAME `NNN-<TopicName>/` folder.
+Split when any of these are true: >=3 independent subsystems (>=2 in Tier 3), >~250 lines, >15 named classes across L2 traces, or >200 source files. Keep sibling docs in the same `NNN-<TopicName>/` folder.
 
-### Cross-Module Integration Requirements
-
-When a topic folder contains ≥2 sub-module analysis documents, the Overview MUST include:
-
-1. **Integration data flow**: ≥1 end-to-end trace across sub-module boundaries, naming classes/functions at each crossing
-2. **Selection guide** (if sub-modules are alternatives): comparison table with scenario, recommendation, rationale, tradeoffs
-3. **Shared lifecycle** (if sub-modules share resources): initialization order, shared state, teardown
-4. **Limitation callouts**: P0 limitations from sub-modules surfaced prominently in Overview
+If a topic folder contains >=2 sibling docs, its overview must centralize cross-doc integration flow, shared lifecycle, and limitation callouts; use `templates.md` §2b.
 
 ## Feature Module Documentation
 
-**Feature modules are documented AFTER their constituent structural modules are complete**, since feature-level analysis traces cross-module interactions that rely on L2/L3 content from structural docs.
+Write feature documents only after their structural modules are closed.
 
-### Feature Module Analysis Document
+- Use `templates.md` §2c to finalize one feature document per pass.
+- Discover traces by scanning artifacts, not by quota: subdirectories, MsgHandler files, EventArgs definitions, state machines, and bridge/interface consumers determine the path count.
+- Run `CHECKPOINT F` before finalizing the feature document.
+- Use `reference.md` for tier depth and `workflow.md` for the full feature gate checklist.
 
-For each feature module (ordered by priority from MasterIndex §20), produce a cross-module analysis document:
+## MasterIndex And Annotation
 
-1. **Feature Overview (L1)**: What the feature does for end users; which structural modules participate; entry points
-2. **Cross-Module Data Flow (L2)**: Trace ≥1 complete end-to-end path from user action → UI → Logic → Network → Data and back. Name specific classes/functions at each structural module boundary crossing.
-3. **Module Interaction Map**: Table showing which class in structural module A calls which class in structural module B, with the interaction purpose
-4. **Feature-Specific Patterns**: Architecture patterns that only emerge at the feature level (e.g., optimistic update pattern spanning UI + Logic + Network)
-5. **Feature Diagram**: Cross-module flow diagram showing the feature's data/control flow across structural modules
-
-**Document naming**: `<FeatureName>_CrossModule_Analysis.md`, placed in the topic folder of the feature's primary structural module (the one with the most files for this feature).
-
-**Tier-based depth**:
-- **Tier 1**: Feature modules skipped
-- **Tier 2**: P0 features get full cross-module analysis; P1 features get overview + one flow trace
-- **Tier 3**: All features (P0–P2) get full cross-module analysis + interaction map + dedicated diagram
-
-## Detail Tier Depth Configuration
-
-### Tier 1 — Quick Overview
-
-| Priority | Depth | Diagrams | Coverage Chain |
-|----------|-------|----------|----------------|
-| P0 | L0 + L1 only (purpose, patterns, entry points) | 0 (rely on MasterIndex global diagram) | Not enforced |
-| P1–P3 | Listed in MasterIndex only, no standalone documents | — | — |
-
-### Tier 2 — Standard Analysis (Default)
-
-| Priority | Depth | Diagrams | Coverage Chain |
-|----------|-------|----------|----------------|
-| P0 | Full L0–L3 + usage examples | ≥2 per module | Full enforcement |
-| P1 | L1–L3 | ≥1 per module | Standard |
-| P2 | L1–L2 + lightweight L3 | ≥1 per module | L3 floor only |
-| P3 | Simplified analysis | Optional | Not enforced |
-
-### Tier 3 — Deep Analysis
-
-| Priority | Depth | Diagrams | Coverage Chain |
-|----------|-------|----------|----------------|
-| P0 | Full L0–L3 + usage examples + code snippets in every L2 trace | ≥3 per module | Full + all public APIs |
-| P1 | Full L0–L3 | ≥2 per module | Full enforcement |
-| P2 | Full L0–L3 | ≥1 per module | Standard |
-| P3 | L1–L2 | Optional | L3 floor only |
-
-Additional Tier 3 rules:
-- Module split threshold lowered to ≥2 subsystems
-- Design Intent analysis mandatory for every module
-- Follow-Up Items require detailed priority justification and fix suggestions
-
-## Readability Formatting Rules
-
-| Rule | Trigger | Required Format |
-|------|---------|----------------|
-| Paragraph cap | Any paragraph >4 sentences | Split so each paragraph conveys one idea. Lead with **bolded summary sentence** |
-| Structured lists | Listing ≥4 items of same type | Bullet list (4–6 items) or table (7+). Max 3 items inline |
-| One-step-one-concern | A numbered step contains semicolons or "then / and also" chains | Split into sub-steps (1a, 1b) or separate steps |
-| Term introduction | First use of domain term or abbreviation | **Term** — one-sentence definition. Never bury in prose |
-| Visual spacing | Two dense blocks adjacent | Insert ≥1 sentence of connecting prose |
-| Language | Always | Headings/prose default to Chinese; switch to English only when explicitly requested. Technical identifiers (`ClassName::method()`, file paths) stay English |
-
-## Collaborative Protocol
-
-### Key Checkpoints
-
-| Checkpoint | When | Validate |
-|-----------|------|----------|
-| MasterIndex consumed | Startup | Module list matches expectations, tier is correct |
-| Design intent | During analysis | Inferences, `[intent-unclear]` areas |
-| Document draft | Before writing to disk | Structural completeness via CHECKPOINT B and C |
-
-### Risk Escalation
-
-| Severity | Indicator | Action |
-|----------|----------|--------|
-| Critical | Architectural risk, security hazard | Pause, report, wait for user |
-| High | Contradicts expectations/docs | Tag `[conflict]`, present evidence |
-| Medium | Multiple plausible interpretations | Tag `[intent-ambiguous]`, list options |
-| Low | Minor smells, style issues | Record in Follow-Up Items |
-
-### Design Intent Tags
-
-| Tag | Meaning |
-|-----|---------|
-| `[intent-clear]` | Code + comments + naming all align |
-| `[intent-likely]` | Strong evidence, alternatives exist |
-| `[intent-unclear]` | Insufficient evidence |
-| `[intent-conflict]` | Code contradicts comments/docs |
-
-## File-Level Annotation (Conditional)
-
-If the user selected "Yes" for file-level annotations in the Trigger Protocol:
-
-1. After completing all module analysis documents, invoke `code-annotation` skill
-2. Track annotation progress in the MasterIndex Annotated Source Index section
-3. Follow the annotation skill's batch strategy and calibration protocol
+- MasterIndex ownership, update sequence, handoff rules, and annotation flow live in `workflow.md`.
+- Only mark a module done or trigger `code-annotation` after `CHECKPOINT M` passes.
 
 ## Companion Files
 
-- [templates.md](templates.md) — Master index, per-module analysis, multi-module overview, priority matrix templates
+- [templates.md](templates.md) — Module Context Packet, Evidence Packet, per-module analysis, multi-module overview, and feature templates
+- [prompt-templates.md](prompt-templates.md) — Ready-to-paste prompts for module modeling, single-document finalization, and module review
 - [conventions.md](conventions.md) — Directory structure, file naming, diagram strategy, cross-referencing, compliance checklist
-- [workflow.md](workflow.md) — Multi-conversation handoff, resume protocol, quality regression handling
+- [reference.md](reference.md) — Tier depth, coverage closure rules, orchestration heuristics, readability, design intent tags, and risk escalation
+- [workflow.md](workflow.md) — Session startup/resume, attention management, execution gates, handoff, MasterIndex updates, and annotation flow
 - `codebase-structure` skill — produces the MasterIndex consumed by this skill
 - `code-annotation` skill — for conditional Phase 4 file-level annotation
 - `excalidraw-workflow` skill — for diagram generation (Path A)

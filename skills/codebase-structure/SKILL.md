@@ -103,6 +103,7 @@ Apply these detection signals in priority order:
 | Directory with mixed public interface + private implementation | Strong | `include/` + `src/` pair |
 | Cohesive directory with ≥5 files sharing naming prefix or domain | Medium | `combat_*.py`, `ai_*.cpp` |
 | Directory name matches recognized domain concept | Medium | `auth/`, `rendering/`, `network/` |
+| Entry-point file (`main.*`, `app.*`, `index.*`, `Program.*`, `startup.*`) | Medium | `main.py`, `index.ts`, `Program.cs` as module root |
 | Single file implementing a complete subsystem (>500 lines) | Weak | `physics_engine.cpp` as standalone module |
 
 **Merge heuristic**: Two adjacent directories with <5 files each AND >50% shared imports → consider merging into one module.
@@ -129,19 +130,7 @@ Apply these detection signals in priority order:
 
 ### 1.4 Architecture Pattern Recognition
 
-**Scan for common patterns and tag modules with evidence.** Record the specific files/classes that support each identification.
-
-| Pattern | Detection Signals |
-|---------|------------------|
-| MVC / MVP / MVVM | Separate Model/View/Controller directories or class suffixes (`*Model`, `*View`, `*Controller`) |
-| Entity Component System | `Component`, `Entity`, `System` base classes; archetype/chunk storage structures |
-| Pipeline / Chain | Sequential stage classes with uniform input→output interface |
-| Event-Driven / Pub-Sub | `EventBus`, `EventEmitter`, `subscribe`/`publish`/`dispatch` methods |
-| Repository / DAO | Data access objects, query builders, ORM model base classes |
-| State Machine | State enum/class + transition table/matrix or `OnEnter`/`OnExit` methods |
-| Plugin / Extension | Plugin interface, registry pattern, dynamic loading (`dlopen`, `importlib`) |
-| Actor Model | Message passing primitives, mailbox queues, actor base class |
-| Blackboard | Shared data store read/written by multiple independent processors |
+**Scan for common patterns and tag modules with evidence.** Record the specific files/classes that support each identification. See [reference.md](reference.md) §Architecture Pattern Recognition for the full pattern detection signals table (MVC, ECS, Pipeline, Event-Driven, State Machine, Plugin, Actor, CQRS, Hexagonal, Middleware Chain, etc.).
 
 ### 1.5 Feature Module Detection
 
@@ -149,40 +138,12 @@ Apply these detection signals in priority order:
 
 **When to detect**: After structural modules are identified (§1.2–1.4), scan for cross-cutting features that no single structural module fully captures.
 
-**Detection signals (apply in priority order):**
+See [reference.md](reference.md) §Feature Module Detection Signals for the full detection signals table, record format, scan strategy, and merge/split heuristics.
 
-| Signal | Strength | Example |
-|--------|----------|---------|
-| User declaration | Strongest | User states "Payments is a major feature" |
-| Cross-directory naming pattern: same domain keyword in ≥2 structural modules | Strong | `Payment` appearing in `Logic/Payment/`, `UI/PaymentPanel/`, `Network/PaymentMsg/` |
-| Domain-specific config/data cluster referencing classes across directories | Strong | `payment_config.json` with references to both Logic and UI classes |
-| Entry-point tracing: a UI panel or command triggers logic across ≥3 structural modules | Medium | `PaymentPanel` imports from Logic, Network, and Data modules |
-| Shared domain base class or interface implemented across directories | Medium | `IPaymentComponent` with implementations in multiple structural modules |
-| Cohesive protocol/message definitions for a single domain | Medium | `PaymentRequest`, `PaymentResponse`, `PaymentSync` message types grouped by domain |
-
-**Feature module record format:**
-
-| Field | Content |
-|-------|---------|
-| Name | Business feature name (default Chinese; English only if user explicitly requests) |
-| Domain | Brief description of what the feature does for end users |
-| Constituent locations | List of `structural_module/subdirectory` or `structural_module/file_pattern` for each structural module involved, with approximate file counts |
-| Entry points | Primary classes/functions that initiate the feature |
-| Estimated complexity | Simple (<30 files, ≤2 modules) / Medium (30–150 files, 2–4 modules) / Complex (>150 files or >4 modules) |
-
-**Scan strategy:**
-
-1. **Name-based scan**: For each structural module's subdirectories, extract directory-name keywords. Find keywords appearing in ≥2 different top-level structural modules → candidate features
-2. **Import-based scan** (Tier 2+): Sample files from candidate feature locations; verify cross-module imports exist to confirm the feature's constituent parts actually interact
-3. **Config/data anchoring**: Scan configuration and data directories for domain-specific files; trace which code modules reference them
-4. **User consultation**: Present candidate feature list to user; ask for additions, corrections, or merges
-5. **Complexity assessment**: For each confirmed feature, sum total files across all locations, count structural modules spanned, identify key interaction patterns (sync/async, data flow direction)
-
-**Merge heuristic**: If two candidate features share >70% of their constituent locations, propose merging them into one feature module.
-
-**Split heuristic**: If a candidate feature contains ≥3 clearly separable sub-workflows with different user-facing purposes, propose splitting.
-
-**Minimum threshold**: A feature module must span ≥2 structural modules to justify separate tracking. Single-module features are already captured by structural module analysis.
+**Key rules** (summarized here for quick reference):
+- Detection signals prioritized: user declaration (strongest) > cross-directory naming > config/data anchoring > import tracing
+- Minimum threshold: must span ≥2 structural modules
+- Merge if >70% shared constituent locations; split if ≥3 separable sub-workflows
 
 ### 1.6 Priority Classification
 
@@ -329,49 +290,9 @@ Assemble `Document/MasterIndex.md` with the sections specified in Output Specifi
 
 ## Detail Tier Configurations
 
-### Tier 1 — Quick Overview
+See [reference.md](reference.md) §Detail Tier Configurations for full tier specs and §Project Scale Adaptation for file-count-based workflow adjustments.
 
-- Directory scanning: top 2–3 levels only
-- Structural module detection: directory-based only (no import analysis for boundary detection)
-- Feature module detection: **skip** (user may manually declare features)
-- No dependency graph construction (skip Phase 2 entirely)
-- No architecture pattern recognition
-- Priority classification: binary P0/SKIP only
-- Output: MasterIndex with directory tree + basic structural module list
-- No diagrams generated
-
-### Tier 2 — Standard Analysis (Default)
-
-- Full directory scanning to functional sub-module level
-- Structural module detection with all heuristics (§1.2–1.4)
-- Feature module detection: **name-based scan** + user consultation (§1.5 steps 1, 4, 5)
-- Dependency graph: sample-based (3–5 files per module)
-- Pattern recognition: top-level patterns only
-- Full P0–P3 + SKIP classification for both structural and feature modules
-- Output: complete MasterIndex (with Feature Module Matrix) + global architecture diagram
-- Diagram planning for documentation phase
-
-### Tier 3 — Deep Analysis
-
-- Full directory scanning with mandatory sub-module splitting enforced
-- Structural module detection with all heuristics + finest granularity
-- Feature module detection: **full scan** — name-based + import-based + config anchoring + user consultation (all §1.5 steps)
-- Dependency graph: exhaustive (all source files scanned)
-- Pattern recognition: recursive (patterns within sub-modules)
-- Full classification with detailed evidence for every module (structural and feature)
-- Feature–structural interaction mapping: trace data flow paths within each P0 feature across its constituent structural modules
-- Output: complete MasterIndex + global architecture + per-P0-module mini architecture diagrams + per-P0-feature cross-module flow diagrams
-- Split threshold lowered: ≥2 subsystems triggers split (vs ≥3 in Tier 2)
-- Mandatory `[inferred]` and `[boundary-uncertain]` confirmation with user for both structural and feature modules
-
-## Project Scale Adaptation
-
-| Scale | File Count | Adaptation |
-|-------|-----------|------------|
-| **Small** | <50 files | Single-pass scan; skip dependency graph; lightweight directory tree |
-| **Medium** | 50–500 files | Standard workflow |
-| **Large** | 500–2000 files | Sample-based scanning for Tier 1–2; phased output |
-| **Very Large** | 2000+ files | Phased scanning by top-level directory; incremental MasterIndex; P0 modules first |
+**Quick summary**: Tier 1 (P0/SKIP only, no deps, no diagrams) | Tier 2 (full inventory + sample-based deps + global diagram, default) | Tier 3 (exhaustive scan + per-P0-module diagrams + feature interaction mapping).
 
 ## Collaborative Protocol
 
@@ -401,6 +322,14 @@ After user confirms the MasterIndex:
 3. Confirm the selected detail tier is recorded in the header
 4. Instruct user: invoke `codebase-documentation` to generate per-module analysis documents based on this MasterIndex
 
+## MasterIndex Update Protocol
+
+The MasterIndex is shared between `codebase-structure` (owner of §00–§40) and `codebase-documentation` (owner of §50–§91). To prevent conflicting updates:
+
+1. **Section ownership**: Only modify sections you own. Exception: §40 (directory tree status tags) may be updated by both skills.
+2. **Read-before-write**: When updating §40, always re-read the current MasterIndex first to avoid overwriting changes made by the other skill.
+3. **Last-modified marker**: After updating, add `<!-- Last updated: YYYY-MM-DD by codebase-structure -->` (or `codebase-documentation`) at the end of the modified section.
+
 ## Resume Protocol
 
 When continuing structure analysis across conversations:
@@ -414,6 +343,7 @@ When continuing structure analysis across conversations:
 ## Companion Files & Skills
 
 - [templates.md](templates.md) — MasterIndex template and output scaffold
+- [reference.md](reference.md) — Pattern detection tables, feature detection signals, tier configurations, scale adaptation (loaded on-demand)
 - `codebase-documentation` — consumes MasterIndex to produce per-module L0–L3 analysis documents
 - `excalidraw-workflow` — for architecture diagram generation (Path A)
 - `code-annotation` — for file-level source annotations (invoked via documentation skill)

@@ -1,62 +1,113 @@
 # Multi-Conversation Workflow
 
-## Workflow Overview
+## Session Startup
 
-This skill consumes a MasterIndex (produced upstream) and generates per-module L0–L3 analysis documents. Work may span multiple conversations depending on project size. The MasterIndex serves as the handoff artifact across conversations.
+Use this section immediately after skill activation.
 
-### Typical Workflow
+### New module / first pass
 
-```
-Conversation 1:  P0 module analysis docs (batch 1)
-Conversation 2:  P0 module analysis docs (batch 2) + P1 modules
-Conversation N:  remaining modules + optional file annotations
-```
+1. Run the Trigger Protocol questions from `SKILL.md`.
+2. Read `Document/MasterIndex.md` and capture tier, §10 structural modules, §20 feature modules, dependency summary, and latest handoff notes.
+3. If no MasterIndex exists, stop and run `codebase-structure` first, or perform a lightweight in-place inventory.
+4. Pick the current module and decide whether it requires a Module Context Packet.
+5. Load only the companion file needed for the current phase.
 
-## Conversation Scoping
+### Resume existing module
 
-Each conversation should complete one module or a batch of related modules. Plan for 3–5 module analyses per conversation; adjust based on module complexity.
+1. Read the latest handoff notes.
+2. Read the latest Module Context Packet / Coverage Ledger artifact if one exists.
+3. Read the current target document or most recent completed analysis doc.
+4. Spot-check 3 source files against the active gate.
+5. Continue with one target document only.
+
+## Attention Management During Multi-Document Work
+
+- Keep the active working set minimal: main `SKILL.md`, the current target doc, and one companion file for the current phase.
+- Do not open final prose for more than one sibling document at a time.
+- Same-module subagents return Evidence Packets only.
+- When context is tight, preserve source facts, trace inventory, L3 closure, and Key Files before prose polish.
+- If function names, file paths, or edge cases start disappearing, stop expanding prose and rebuild the trace inventory first.
+
+## Depth-First Execution Order
+
+1. Build or refresh the Module Context Packet.
+2. Build or refresh the Coverage Ledger.
+3. Choose one target document.
+4. Collect Evidence Packets if needed.
+5. Finalize the target document using `templates.md`.
+6. Run `CHECKPOINT B` and `CHECKPOINT C`.
+7. Repeat for remaining sibling docs.
+8. Run `CHECKPOINT M` at module scope.
+9. Only then update MasterIndex status, start feature docs, or trigger annotation.
+
+## Execution Gates
+
+### CHECKPOINT B — before Step C
+
+- [ ] Every subsystem from MasterIndex has a data flow trace.
+- [ ] No banned syntax or vague language appears in the draft.
+- [ ] Performance notes exist for each feature / subsystem.
+- [ ] P0 modules contain at least one usage example.
+
+### CHECKPOINT C — before document finalization
+
+- [ ] Every class named in L2 has an L3 entry.
+- [ ] Key Files table covers all files in the target directory scope.
+- [ ] Diagram count meets the tier minimum.
+- [ ] Every diagram has a compliant walkthrough.
+
+### CHECKPOINT M — before module completion
+
+- [ ] Module Context Packet exists and matches the current directory scan.
+- [ ] Coverage Ledger is closed for every subsystem in the module.
+- [ ] Every shared anchor has exactly one owner document.
+- [ ] Sibling docs do not conflict on shared mechanisms.
+- [ ] At least 3 hotspot source files were spot-checked after drafting.
+
+### CHECKPOINT F — feature documents only
+
+- [ ] §0 subsystem inventory matches the feature directory scan.
+- [ ] §3 traces cover every inventoried subsystem.
+- [ ] §5 matches all EventArgs definitions.
+- [ ] §6 matches all MsgHandler handlers, if present.
+- [ ] Every class named in §3 / §4 appears in L3.
+- [ ] Every L3 class file appears in Key Files.
+
+## MasterIndex Update And Annotation Rules
+
+1. Own §50–§91 and Handoff Notes only; §40 may be updated by both skills.
+2. Re-read the current MasterIndex before editing §40.
+3. Append `<!-- Last updated: YYYY-MM-DD by codebase-documentation -->` after any modified owned section.
+4. Only mark a module `[done]` after `CHECKPOINT M` passes.
+5. Invoke `code-annotation` only if the user selected `Yes` and `CHECKPOINT M` has passed.
 
 ## End-of-Conversation Protocol
 
-Before ending any conversation:
-
-1. **Update the master index** — mark completed modules, update file counts, coverage percentages, and directory tree status tags
-2. **Write Handoff Notes** at the bottom of MasterIndex following the template format (Completed / Next priorities / Known issues)
-3. **Verify claimed progress** — spot-check 3 files from the work just completed
-4. **Verify diagrams** — validate per the Diagram Strategy in [conventions.md](conventions.md): Path A — run the PNG export command and confirm every `.excalidraw` has a `.png` sibling; Path B — confirm mermaid diagrams are fully embedded. Report any issues in the handoff notes.
-5. **Verify directory tree** — update status tags in the Project Directory Tree section to reflect completed work
-
-## Resume Protocol
-
-When starting a new conversation to continue the work:
-
-### Resume Steps
-
-1. **Re-read `codebase-documentation` SKILL.md** — especially the Four-Level Depth Model, Coverage-Chain Completeness Rule, and Step B/C checkpoints
-2. **Read `Document/MasterIndex.md`** — understand overall progress state, selected detail tier, and module priorities
-3. **Read the latest handoff notes** — know exactly what to do next
-4. **Read the most recent completed analysis doc** — use as quality calibration reference
-5. **Spot-check 3 files** from the previous session's work against CHECKPOINT C
-6. **Re-read 1–2 GOOD reference files** to calibrate quality
-7. **Continue from where the handoff notes indicate**
+1. Update MasterIndex status, file counts, and directory-tree tags.
+2. Write Handoff Notes with completed docs, next target doc, active gate, and blockers.
+3. Spot-check 3 source files from the current pass.
+4. Verify diagram assets or Mermaid embeds.
+5. Verify the Context Packet / Coverage Ledger still match the latest source scan.
+6. If the module is incomplete, leave a clear next document and next hotspot list.
 
 ## Quality Regression Handling
 
-If a spot-check reveals bad quality (annotations match forbidden anti-patterns, or analysis docs violate Hard Rules):
+If a spot-check reveals bad quality or depth regression:
 
-1. **STOP** the current batch immediately
-2. **Diagnose**: identify which files are affected and what pattern caused the regression
-3. **Re-calibrate**: re-read GOOD reference files, re-read anti-pattern list / Hard Rules
-4. **Redo** the affected files (do not continue forward with bad quality)
-5. **Document** the regression in the handoff notes for future awareness
+1. **STOP** the current batch immediately.
+2. Diagnose which files, traces, or ownership decisions caused the regression.
+3. Re-calibrate by re-reading the Hard Rules, the active gate, and 1–2 good reference docs.
+4. Reduce fan-out: fall back to evidence-only subagents or fully serial drafting.
+5. Redo the affected document(s) before moving forward.
+6. Record the regression and the fix strategy in handoff notes.
 
 ## Dealing with Very Large Projects (10K+ files)
 
-- Break into **macro-phases**: analyze by language first (e.g., C++ → Python → Lua)
-- Use P0/P1 modules as the first macro-phase (often ~20% of files, ~80% of value)
-- P2/P3 modules can use the "first-full + simplified" strategy aggressively
-- SKIP modules should be identified early in `codebase-structure` to avoid wasted effort
-- Track cumulative statistics in the MasterIndex: total files analyzed, total docs produced, total annotations completed
+- Break work into macro-phases by priority or language.
+- Start with P0/P1 modules that deliver most architectural value.
+- Use simplified depth only where the selected tier explicitly allows it.
+- Identify SKIP modules early to avoid wasted effort.
+- Track cumulative totals in MasterIndex: files analyzed, docs produced, annotations completed.
 
 ## MasterIndex Consistency Verification
 
@@ -64,7 +115,7 @@ After each session, verify the MasterIndex remains consistent with produced docu
 
 | Check | How |
 |-------|-----|
-| Every P0/P1 module in Priority Matrix has a corresponding analysis document | Scan MasterIndex §10 → verify §60 has entries |
-| Analysis documents reference diagrams that exist | Check all `![...]()` paths resolve to files |
+| Every P0/P1 module in Priority Matrix has a corresponding analysis document | Scan MasterIndex §10 and verify §60 entries |
+| Analysis documents reference diagrams that exist | Check all `![...]()` paths resolve |
 | Directory tree status matches actual document existence | `[done]` modules have docs in `NNN-` folders |
 | Handoff notes are current | Latest session date matches most recent work |
