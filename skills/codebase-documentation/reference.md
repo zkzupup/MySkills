@@ -99,7 +99,10 @@ When context is tight, preserve information in this order:
 |------|---------|----------------|
 | Paragraph cap | Any paragraph >4 sentences | Split so each paragraph conveys one idea. Lead with **bolded summary sentence** |
 | Structured lists | Listing >=4 items of same type | Bullet list (4-6 items) or table (7+). Max 3 items inline |
-| One-step-one-concern | A numbered step contains semicolons or "then / and also" chains | Split into sub-steps (1a, 1b) or separate steps |
+| One-step-one-concern | A numbered step contains >2 sentences, >1 distinct concern, or "then / and also" chains | Split into sub-steps (3a, 3b) or sub-bullets under the step |
+| Inline code identifier cap | A step/sentence lists >=4 `ClassName::method()` or field names inline | Convert to sub-bullet list: one identifier per line with `—` description |
+| No arrow chains in prose | Any `→` chain with >=4 nodes appears in Data Flow or Step-by-step Logic | **Data Flow**: use numbered vertical pipeline (one step per line). **Steps**: convert inline chain to numbered sub-list. >=8 steps or branching flows: use `mermaid graph LR` |
+| Comparison structure | A step compares two parallel objects (e.g. Attack vs Defend, Producer vs Consumer) | Use parallel sub-bullets or a mini-table instead of inline prose contrast |
 | Term introduction | First use of domain term or abbreviation | **Term** — one-sentence definition. Never bury in prose |
 | Visual spacing | Two dense blocks adjacent | Insert >=1 sentence of connecting prose |
 | Language | Always | Headings/prose default to Chinese; switch to English only when explicitly requested. Technical identifiers (`ClassName::method()`, file paths) stay English |
@@ -112,6 +115,20 @@ When context is tight, preserve information in this order:
 | `[intent-likely]` | Strong evidence, alternatives exist |
 | `[intent-unclear]` | Insufficient evidence |
 | `[intent-conflict]` | Code contradicts comments/docs |
+
+## Documentation Split Signals (Fallback)
+
+Used only when MasterIndex §50 has no split plan (legacy MasterIndex). Evaluate sub-system independence:
+
+| Signal | Indicates split | Indicates single-doc |
+|--------|----------------|---------------------|
+| Separate entry points | Each sub-module has its own starting point | All share a single init path |
+| Distinct responsibilities | Each answers a different "what does this do?" | Responsibilities are interleaved |
+| Low file overlap (<30%) | Sub-modules own disjoint files | Many files span sub-modules |
+| Independent dependencies | Sub-modules import different upstreams | Shared upstream dependencies |
+| No shared lifecycle | Independent at runtime | Phases of one lifecycle |
+
+If >=2 sub-modules satisfy independence across >=3 signals → multi-doc. Record in Context Packet §5.
 
 ## Risk Escalation
 

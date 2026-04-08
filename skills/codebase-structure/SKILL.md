@@ -203,6 +203,12 @@ See [reference.md](reference.md) §Feature Module Detection Signals for the full
 
 **Wait for user confirmation on both lists before proceeding to Phase 2.**
 
+**Documentation split plan** (Tier 2+ only, after Phase 3.5):
+
+7. Show the documentation split plan for all multi-doc modules
+8. Ask: "Review the split plan. Any modules that should be further split or kept as single-doc?"
+9. Wait for user confirmation before writing the final MasterIndex.
+
 ## Phase 2: Dependency Analysis
 
 ### 2.1 Import/Include Scanning
@@ -284,7 +290,17 @@ For each feature module from §1.5:
 2. Build a **Feature–Structure Cross-Reference** table showing which structural modules contain parts of which features
 3. Verify every feature's constituent locations are marked with `{feature:Name}` tags in the directory tree (Phase 3.2)
 
-### 3.4 Master Index Assembly
+### 3.5 Documentation Split Planning (Tier 2+)
+
+For each non-SKIP structural module, evaluate whether it needs multi-doc treatment based on **sub-system independence**, not file counts.
+
+**Split when** the module contains >=2 sub-modules that satisfy independence: each has its own entry point, its own primary responsibility, and shares <30% of source files with siblings. Record the decision and rationale in §50.
+
+**Do NOT split** when sub-modules are tightly coupled (shared state machines, interleaved call chains, co-dependent lifecycle).
+
+See [reference.md](reference.md) §Documentation Split Signals for the full evaluation guide. Present the split plan to the user during Interactive Confirmation (§1.8) alongside module boundaries.
+
+### 3.6 Master Index Assembly
 
 Assemble `Document/MasterIndex.md` with the sections specified in Output Specification (§above). Use the MasterIndex template from [templates.md](templates.md) as the base format.
 

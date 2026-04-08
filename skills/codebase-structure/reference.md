@@ -99,3 +99,17 @@
 | **Medium** | 50-500 files | Standard workflow |
 | **Large** | 500-2000 files | Sample-based scanning for Tier 1-2; phased output |
 | **Very Large** | 2000+ files | Phased scanning by top-level directory; incremental MasterIndex; P0 modules first |
+
+## Documentation Split Signals
+
+Evaluate these structural independence signals for each module. The decision is qualitative — based on sub-system independence, not file-count thresholds.
+
+| Signal | Indicates split | Indicates single-doc |
+|--------|----------------|---------------------|
+| Sub-modules have separate entry points | Each can be understood from its own starting point | All share a single init/startup path |
+| Sub-modules have distinct responsibilities | Each answers a different "what does this do?" question | Responsibilities are interleaved |
+| Low file overlap between sub-modules (<30%) | Sub-modules own disjoint source files | Many files contribute to multiple sub-modules |
+| Independent dependency profiles | Sub-modules import different upstream modules | Sub-modules share most upstream dependencies |
+| No shared state machine or lifecycle | Sub-modules operate independently at runtime | Sub-modules are phases of a single lifecycle |
+
+**Decision**: If >=2 sub-modules satisfy independence across >=3 signals, recommend multi-doc. Otherwise, recommend single-doc with justification.

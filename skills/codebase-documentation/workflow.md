@@ -9,7 +9,7 @@ Use this section immediately after skill activation.
 1. Run the Trigger Protocol questions from `SKILL.md`.
 2. Read `Document/MasterIndex.md` and capture tier, §10 structural modules, §20 feature modules, dependency summary, and latest handoff notes.
 3. If no MasterIndex exists, stop and run `codebase-structure` first, or perform a lightweight in-place inventory.
-4. Pick the current module and decide whether it requires a Module Context Packet.
+4. Read §50 split plan for the target module. If multi-doc: Context Packet is mandatory, pre-populate §5 from the split plan. If single-doc: proceed without Context Packet unless >=2 independent subsystems are discovered during code reading. If no split plan exists: use fallback rules in SKILL.md Split And Overview Rules.
 5. Load only the companion file needed for the current phase.
 
 ### Resume existing module
@@ -30,15 +30,16 @@ Use this section immediately after skill activation.
 
 ## Depth-First Execution Order
 
-1. Build or refresh the Module Context Packet.
-2. Build or refresh the Coverage Ledger.
-3. Choose one target document.
-4. Collect Evidence Packets if needed.
-5. Finalize the target document using `templates.md`.
-6. Run `CHECKPOINT B` and `CHECKPOINT C`.
-7. Repeat for remaining sibling docs.
-8. Run `CHECKPOINT M` at module scope.
-9. Only then update MasterIndex status, start feature docs, or trigger annotation.
+1. Read MasterIndex §50 split plan for the current module.
+2. Build or refresh the Module Context Packet (mandatory for multi-doc; pre-populate §5 from split plan).
+3. Build or refresh the Coverage Ledger.
+4. Choose one target document (from the split plan if multi-doc).
+5. Collect Evidence Packets if needed.
+6. Finalize the target document using `templates.md`.
+7. Run `CHECKPOINT B` and `CHECKPOINT C`.
+8. Repeat for remaining sibling docs.
+9. Run `CHECKPOINT M` at module scope.
+10. Only then update MasterIndex status, start feature docs, or trigger annotation.
 
 ## Execution Gates
 

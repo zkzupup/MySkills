@@ -69,9 +69,13 @@ Use this template BEFORE drafting any module that will split across multiple doc
 
 ## 5. Candidate Document Split
 
-| Document | Scope | Source Ownership | Shared Dependencies |
-|----------|-------|------------------|---------------------|
-| `<doc>.md` | <subsystem scope> | `path/a`, `path/b` | <anchors owned elsewhere> |
+**Source**: <MasterIndex §50 | agent fallback>
+**Split Decision**: <single-doc | multi-doc>
+**Rationale**: <from split plan or agent's justification>
+
+| Document | Scope | Sub-Modules | Shared Dependencies |
+|----------|-------|-------------|---------------------|
+| `<doc>.md` | <subsystem scope> | <names> | <anchors owned elsewhere> |
 
 ## 6. Coverage Ledger
 
@@ -196,13 +200,25 @@ Use this template to finalize ONE document per pass. If a module spans multiple 
 ### 3.1 [Feature / Subsystem A]
 
 **Data Flow:**
-`[Input Source]` → `ClassA::methodA()` (`path/file.ext:line`) → `ClassB::methodB()` → `[Output/Effect]`
+1. `[Input Source]`
+2. `ClassA::methodA()` — `path/file.ext:line`
+3. `ClassB::methodB()` — `path/file.ext:line`
+4. `[Output/Effect]`
+
+> Data Flow uses a numbered vertical pipeline: one step per line, each with `ClassName::method()` — `file:line`.
+> Never use a single-line `→` arrow chain. When the flow has >=8 steps or branches, use a `mermaid graph LR` diagram instead.
 
 **Step-by-step Logic:**
-1. [Trigger]: what initiates this flow
-2. [Processing]: specific functions called, data transformations, algorithms
-3. [Result]: what is produced, where does it go
-4. [Edge Cases]: what happens on error, timeout, invalid input
+1. **[Trigger]**: what initiates this flow
+2. **[Processing]**: specific functions called, data transformations, algorithms
+3. **[Result]**: what is produced, where does it go
+4. **[Edge Cases]**: what happens on error, timeout, invalid input
+
+> Formatting rules for Step-by-step Logic:
+> - **One concern per step.** If a step has >2 sentences or >1 distinct concern, split into sub-steps (3a, 3b) or use sub-bullets.
+> - **Inline code identifiers <=3.** When listing >=4 function/field names in one step, convert to a sub-bullet list (one item per line).
+> - **No arrow chains in steps.** If a step describes a pipeline (A → B → C → D), convert to a numbered sub-list.
+> - **Comparison → parallel structure.** When comparing two objects (e.g. Attack vs Defend), use parallel sub-bullets instead of inline prose.
 
 **State Machine / Lifecycle:** (if applicable)
 <Describe states and transitions>
@@ -433,7 +449,12 @@ Use this template for feature-level cross-module analysis documents. Feature mod
 ### 3.1 [主交互路径] — 用户操作 → UI → Logic → 结果
 
 **Data Flow:**
-`[用户操作]` → `ClassA::methodA()` (`path/file.ext:line`) → ... → `[结果]`
+1. `[用户操作]`
+2. `ClassA::methodA()` — `path/file.ext:line`
+3. ...
+4. `[结果]`
+
+> 同标准模块模板：每步一行编号管线。>=8 步或有分支时改用 `mermaid graph LR`。
 
 **源码锚点：**
 

@@ -97,7 +97,10 @@ For each module (ordered by priority from MasterIndex), finalize one target docu
 
 ### Step 0 — Context & Ownership
 
-- Build or refresh the Module Context Packet and Coverage Ledger
+- **Consume split plan** from MasterIndex §50:
+  - multi-doc → Context Packet mandatory, pre-populate §5 from split plan, build Coverage Ledger per planned document
+  - single-doc → verify during code reading; if >=2 independent subsystems discovered, escalate to user before proceeding
+  - no split plan (legacy MasterIndex) → run fallback Split Decision (see Split And Overview Rules below)
 - Pick exactly one target document for the current pass
 - Assign every shared anchor to one owner document before prose
 
@@ -127,9 +130,11 @@ See `workflow.md` `Execution Gates` for full checklists.
 
 ### Split And Overview Rules
 
-Split when any of these are true: >=3 independent subsystems (>=2 in Tier 3), >~250 lines, >15 named classes across L2 traces, or >200 source files. Keep sibling docs in the same `NNN-<TopicName>/` folder.
+**Primary path**: follow the MasterIndex §50 split plan. Do not silently override — if you disagree with the plan after reading code, escalate to the user.
 
-If a topic folder contains >=2 sibling docs, its overview must centralize cross-doc integration flow, shared lifecycle, and limitation callouts; use `templates.md` §2b.
+**Fallback** (no split plan in §50): split when the module contains >=2 sub-modules with independent entry points and distinct responsibilities. See `reference.md` §Documentation Split Signals for the evaluation guide. Record the decision in Context Packet §5.
+
+**Overview rule**: >=2 sibling docs → Overview must centralize integration flow, shared lifecycle, and limitation callouts (`templates.md` §2b).
 
 ## Feature Module Documentation
 

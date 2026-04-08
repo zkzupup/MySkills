@@ -183,10 +183,26 @@ ProjectRoot/
 
 ### Structural Modules
 
-| # | Module | Type | Priority | Planned Diagrams | Estimated Conversations | Status |
-|---|--------|------|----------|-----------------|------------------------|--------|
-| 1 | [Core Module] | Structural | P0 | Architecture, Class, Data Flow | 1 | [todo] |
-| 2 | [Support Module] | Structural | P1 | Architecture | 1 | [todo] |
+| # | Module | Priority | Sub-Modules | Split | Planned Docs | Status |
+|---|--------|----------|-------------|-------|--------------|--------|
+| 1 | [Core Module] | P0 | SubA, SubB, SubC | multi-doc | Overview + 3 Analysis | [todo] |
+| 2 | [Support Module] | P1 | — | single-doc | 1 Analysis | [todo] |
+
+### Document Split Details (multi-doc modules only)
+
+> For each multi-doc module, list the planned documents and their scope.
+> This section is produced by codebase-structure §3.5 and consumed by codebase-documentation.
+
+#### [Core Module]
+
+**Split Rationale**: SubA/SubB/SubC have independent entry points, distinct responsibilities, and low file overlap.
+
+| Doc | Scope | Sub-Modules Covered |
+|-----|-------|---------------------|
+| `NNN_CoreModule_Overview.md` | Cross-sub-module integration | All |
+| `NNN_SubA_Analysis.md` | SubA subsystem | SubA |
+| `NNN_SubB_Analysis.md` | SubB subsystem | SubB |
+| `NNN_SubC_Analysis.md` | SubC subsystem | SubC |
 
 ### Feature Modules
 
