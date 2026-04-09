@@ -95,7 +95,7 @@ async function main() {
 <html><head><meta charset="utf-8" /></head>
 <body>
 <script type="module">
-  import { exportToBlob } from "https://esm.sh/@excalidraw/excalidraw?bundle-deps";
+  import { exportToBlob } from "https://esm.sh/@excalidraw/excalidraw@0.18.0?bundle-deps";
   window.__exportToBlob = exportToBlob;
   window.__excalidrawReady = true;
 </script>
