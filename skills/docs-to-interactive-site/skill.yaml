@@ -1,0 +1,28 @@
+name: docs-to-interactive-site
+description: >-
+  将项目技术 Markdown 文档转换为零依赖的交互式可视化网站。生成纯静态 SPA（hash 路由），
+  包含 Rough.js 手绘风格 SVG 图表、Mermaid 渲染、Fuse.js 模糊搜索、亮/暗主题，
+  以及针对每个核心模块的定制交互式可视化。无框架、无 npm、无构建工具。
+  Convert technical markdown docs into a self-contained interactive visualization SPA.
+version: 1.0.0
+trigger_phrases:
+  - "create documentation site"
+  - "docs to interactive site"
+  - "generate interactive docs"
+  - "build visualization site"
+  - "convert docs to website"
+  - "interactive documentation"
+  - "markdown to SPA"
+  - "文档可视化"
+  - "创建文档网站"
+  - "文档转网站"
+  - "生成交互文档"
+tools:
+  - Read
+  - Write
+  - Edit
+  - Grep
+  - Glob
+  - Bash
+  - AskUserQuestion
+  - Agent
